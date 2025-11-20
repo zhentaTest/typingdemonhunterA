@@ -12,6 +12,7 @@ const state = {
     timerInterval: null,
     correctChars: 0,
     incorrectChars: 0,
+    autoSkippedChars: 0,
     lastSampleId: null
 };
 
@@ -101,6 +102,7 @@ function resetState() {
     state.elapsedTime = 0;
     state.correctChars = 0;
     state.incorrectChars = 0;
+    state.autoSkippedChars = 0;
 
     if (state.timerInterval) {
         clearInterval(state.timerInterval);
@@ -163,7 +165,9 @@ function updateWPM() {
     }
 
     const minutes = state.elapsedTime / 60;
-    const wpm = Math.round((state.correctChars / 5) / minutes);
+    // Exclude auto-skipped characters from WPM calculation
+    const actualTypedChars = state.correctChars - state.autoSkippedChars;
+    const wpm = Math.round((actualTypedChars / 5) / minutes);
     elements.wpm.textContent = `WPM: ${wpm}`;
 }
 
@@ -422,10 +426,11 @@ function handleInput(e) {
     updateWPM();
 }
 
-// Skip blank lines automatically
+// Skip blank lines automatically and auto-indent
 function skipBlankLines(e) {
     const code = state.currentSample.code;
     let position = state.userInput.length;
+    let skippedChars = 0;
 
     // Keep skipping while the next line is blank
     while (position < code.length) {
@@ -442,7 +447,9 @@ function skipBlankLines(e) {
         // Check if the line is blank (empty or only whitespace)
         if (lineContent.trim() === '') {
             // Auto-skip this blank line by adding it to user input
-            state.userInput += lineContent + '\n';
+            const skippedContent = lineContent + '\n';
+            state.userInput += skippedContent;
+            skippedChars += skippedContent.length;
             position = lineEnd + 1;
 
             // Update the hidden input
@@ -453,6 +460,41 @@ function skipBlankLines(e) {
             break;
         }
     }
+
+    // After skipping blank lines, auto-skip leading indentation
+    if (position < code.length) {
+        // Get the current line starting from position
+        let lineEnd = code.indexOf('\n', position);
+        if (lineEnd === -1) {
+            lineEnd = code.length;
+        }
+        const currentLine = code.substring(position, lineEnd);
+
+        // Count leading whitespace (spaces and tabs)
+        let indentCount = 0;
+        for (let i = 0; i < currentLine.length; i++) {
+            if (currentLine[i] === ' ' || currentLine[i] === '\t') {
+                indentCount++;
+            } else {
+                break; // First non-whitespace character
+            }
+        }
+
+        // If there is indentation, auto-skip it
+        if (indentCount > 0) {
+            const indentation = currentLine.substring(0, indentCount);
+            state.userInput += indentation;
+            skippedChars += indentation.length;
+            position += indentCount;
+
+            // Update the hidden input
+            e.target.value = state.userInput;
+            state.currentPosition = state.userInput.length;
+        }
+    }
+
+    // Track the total auto-skipped characters
+    state.autoSkippedChars += skippedChars;
 }
 
 // Handle keydown event for special keys
@@ -498,7 +540,9 @@ function handleCompletion() {
     // Calculate final stats
     const accuracy = Math.round((state.correctChars / state.currentSample.code.length) * 100);
     const minutes = state.elapsedTime / 60;
-    const finalWPM = Math.round((state.correctChars / 5) / minutes);
+    // Exclude auto-skipped characters from WPM calculation
+    const actualTypedChars = state.correctChars - state.autoSkippedChars;
+    const finalWPM = Math.round((actualTypedChars / 5) / minutes);
 
     // Show completion message (optional - can be implemented later)
     setTimeout(() => {

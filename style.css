@@ -108,7 +108,7 @@ body {
 /* Stats Display */
 .stats {
     position: absolute;
-    top: 30px;
+    top: 140px;
     right: 30px;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 20px;
@@ -116,6 +116,7 @@ body {
     box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     min-width: 180px;
     text-align: center;
+    z-index: 10;
 }
 
 .timer {
@@ -229,10 +230,12 @@ body {
 .cursor {
     position: absolute;
     width: 2px;
-    height: 24px;
-    background: #667eea;
-    animation: blink 1s step-end infinite;
-    display: none;
+    height: 1em;
+    background: #4A90E2;
+    animation: blink 0.8s step-end infinite;
+    top: 25px;
+    left: 25px;
+    pointer-events: none;
 }
 
 @keyframes blink {

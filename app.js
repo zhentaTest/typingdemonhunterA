@@ -24,7 +24,8 @@ const elements = {
     userInputDiv: document.getElementById('user-input'),
     hiddenInput: document.getElementById('hidden-input'),
     timer: document.getElementById('timer'),
-    wpm: document.getElementById('wpm')
+    wpm: document.getElementById('wpm'),
+    cursor: document.getElementById('cursor')
 };
 
 // Initialize the application
@@ -193,6 +194,40 @@ function renderUserInput() {
     }
 
     elements.userInputDiv.innerHTML = html;
+    updateCursorPosition();
+}
+
+// Update cursor position
+function updateCursorPosition() {
+    // Create a temporary span to measure the position
+    const tempSpan = document.createElement('span');
+    tempSpan.style.visibility = 'hidden';
+    tempSpan.style.position = 'absolute';
+
+    // Copy the input text up to current position
+    const code = state.currentSample.code;
+    let textContent = '';
+
+    for (let i = 0; i < state.userInput.length; i++) {
+        textContent += escapeHtml(state.userInput[i]);
+    }
+
+    tempSpan.innerHTML = textContent;
+    elements.userInputDiv.appendChild(tempSpan);
+
+    // Get the width and position
+    const rect = tempSpan.getBoundingClientRect();
+    const containerRect = elements.userInputDiv.getBoundingClientRect();
+
+    // Calculate cursor position
+    const cursorLeft = rect.right - containerRect.left;
+    const cursorTop = rect.top - containerRect.top;
+
+    elements.cursor.style.left = `${cursorLeft}px`;
+    elements.cursor.style.top = `${cursorTop}px`;
+
+    // Remove temp span
+    elements.userInputDiv.removeChild(tempSpan);
 }
 
 // Handle input event
@@ -213,6 +248,11 @@ function handleInput(e) {
     state.userInput = value;
     state.currentPosition = value.length;
 
+    // Auto-skip blank lines when user completes a line
+    if (value.length > 0 && value[value.length - 1] === '\n') {
+        skipBlankLines(e);
+    }
+
     // Count correct and incorrect characters
     countCharacters();
 
@@ -224,6 +264,39 @@ function handleInput(e) {
     renderOriginalText();
     renderUserInput();
     updateWPM();
+}
+
+// Skip blank lines automatically
+function skipBlankLines(e) {
+    const code = state.currentSample.code;
+    let position = state.userInput.length;
+
+    // Keep skipping while the next line is blank
+    while (position < code.length) {
+        // Find the end of the current line
+        let lineEnd = code.indexOf('\n', position);
+        if (lineEnd === -1) {
+            // No more lines
+            break;
+        }
+
+        // Get the current line content (excluding the newline)
+        const lineContent = code.substring(position, lineEnd);
+
+        // Check if the line is blank (empty or only whitespace)
+        if (lineContent.trim() === '') {
+            // Auto-skip this blank line by adding it to user input
+            state.userInput += lineContent + '\n';
+            position = lineEnd + 1;
+
+            // Update the hidden input
+            e.target.value = state.userInput;
+            state.currentPosition = state.userInput.length;
+        } else {
+            // Found a non-blank line, stop skipping
+            break;
+        }
+    }
 }
 
 // Handle keydown event for special keys

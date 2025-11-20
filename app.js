@@ -462,7 +462,10 @@ function skipBlankLines(e) {
     }
 
     // After skipping blank lines, auto-skip leading indentation
-    if (position < code.length) {
+    // But only if we're not on the first line (line index > 0)
+    const currentLineIndex = (state.userInput.match(/\n/g) || []).length;
+
+    if (position < code.length && currentLineIndex > 0) {
         // Get the current line starting from position
         let lineEnd = code.indexOf('\n', position);
         if (lineEnd === -1) {

@@ -11,6 +11,285 @@ body {
     min-height: 100vh;
     padding: 20px;
     color: #333;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Dark Theme (Default) */
+body.theme-dark {
+    background: linear-gradient(135deg, #1e1e1e 0%, #0d1117 100%);
+    color: #e6e6e6;
+}
+
+body.theme-dark .container {
+    background: #161b22;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+body.theme-dark .title {
+    color: #58a6ff;
+}
+
+body.theme-dark .header {
+    border-bottom-color: #30363d;
+}
+
+body.theme-dark .control-group label {
+    color: #8b949e;
+}
+
+body.theme-dark .select {
+    background: #0d1117;
+    border-color: #30363d;
+    color: #e6e6e6;
+}
+
+body.theme-dark .select:hover {
+    border-color: #58a6ff;
+}
+
+body.theme-dark .select:focus {
+    border-color: #58a6ff;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.1);
+}
+
+body.theme-dark .btn {
+    background: #238636;
+    box-shadow: 0 2px 8px rgba(35, 134, 54, 0.3);
+}
+
+body.theme-dark .btn:hover {
+    background: #2ea043;
+    box-shadow: 0 4px 12px rgba(35, 134, 54, 0.4);
+}
+
+body.theme-dark .stats {
+    background: linear-gradient(135deg, #1f6feb 0%, #58a6ff 100%);
+}
+
+body.theme-dark .section-label {
+    color: #8b949e;
+}
+
+body.theme-dark .text-display {
+    background: #0d1117;
+    border-color: #30363d;
+    color: #e6e6e6;
+}
+
+body.theme-dark .original-text {
+    color: #c9d1d9;
+}
+
+body.theme-dark .user-input {
+    background: #0d1117;
+    border-color: #58a6ff;
+}
+
+body.theme-dark .char.current {
+    background: rgba(88, 166, 255, 0.2);
+    border-bottom-color: #58a6ff;
+}
+
+body.theme-dark .char.completed {
+    color: #6e7681;
+}
+
+body.theme-dark .char.correct {
+    color: #c9d1d9;
+}
+
+body.theme-dark .char.incorrect {
+    color: #f85149;
+    background: rgba(248, 81, 73, 0.1);
+}
+
+body.theme-dark .char-input {
+    color: #e6e6e6;
+}
+
+body.theme-dark .char-input.incorrect {
+    color: #f85149;
+    background: rgba(248, 81, 73, 0.1);
+}
+
+body.theme-dark .cursor {
+    background: #58a6ff;
+}
+
+body.theme-dark .completion-message {
+    background: #161b22;
+    color: #e6e6e6;
+    border: 1px solid #30363d;
+}
+
+body.theme-dark .completion-message h2 {
+    color: #58a6ff;
+}
+
+body.theme-dark .completion-message p {
+    color: #8b949e;
+}
+
+body.theme-dark .completion-message .stat {
+    color: #58a6ff;
+}
+
+/* Light Theme */
+body.theme-light {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #24292f;
+}
+
+body.theme-light .container {
+    background: #ffffff;
+}
+
+body.theme-light .title {
+    color: #667eea;
+}
+
+body.theme-light .header {
+    border-bottom-color: #e0e0e0;
+}
+
+body.theme-light .control-group label {
+    color: #555;
+}
+
+body.theme-light .select {
+    background: white;
+    border-color: #ddd;
+    color: #24292f;
+}
+
+body.theme-light .select:hover {
+    border-color: #667eea;
+}
+
+body.theme-light .select:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+body.theme-light .btn {
+    background: #667eea;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+body.theme-light .btn:hover {
+    background: #5568d3;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+body.theme-light .stats {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.theme-light .section-label {
+    color: #666;
+}
+
+body.theme-light .text-display {
+    background: #f8f9fa;
+    border-color: #e0e0e0;
+    color: #24292f;
+}
+
+body.theme-light .original-text {
+    color: #333;
+}
+
+body.theme-light .user-input {
+    background: #fff;
+    border-color: #667eea;
+}
+
+body.theme-light .char.current {
+    background: rgba(102, 126, 234, 0.2);
+    border-bottom-color: #667eea;
+}
+
+body.theme-light .char.completed {
+    color: #999;
+}
+
+body.theme-light .char.correct {
+    color: #333;
+}
+
+body.theme-light .char.incorrect {
+    color: #d1242f;
+    background: rgba(209, 36, 47, 0.1);
+}
+
+body.theme-light .char-input {
+    color: #333;
+}
+
+body.theme-light .char-input.incorrect {
+    color: #d1242f;
+    background: rgba(209, 36, 47, 0.1);
+}
+
+body.theme-light .cursor {
+    background: #4A90E2;
+}
+
+body.theme-light .completion-message {
+    background: white;
+    color: #24292f;
+}
+
+body.theme-light .completion-message h2 {
+    color: #667eea;
+}
+
+body.theme-light .completion-message p {
+    color: #555;
+}
+
+body.theme-light .completion-message .stat {
+    color: #667eea;
+}
+
+/* Syntax Highlighting - Dark Theme Only */
+body.theme-dark .syntax-keyword {
+    color: #C586C0;
+}
+
+body.theme-dark .syntax-function {
+    color: #DCDCAA;
+}
+
+body.theme-dark .syntax-string {
+    color: #CE9178;
+}
+
+body.theme-dark .syntax-number {
+    color: #B5CEA8;
+}
+
+body.theme-dark .syntax-type {
+    color: #4EC9B0;
+}
+
+body.theme-dark .syntax-comment {
+    color: #6A9955;
+}
+
+body.theme-dark .syntax-operator {
+    color: #D4D4D4;
+}
+
+/* Light Theme - No syntax highlighting (inherit base color) */
+body.theme-light .syntax-keyword,
+body.theme-light .syntax-function,
+body.theme-light .syntax-string,
+body.theme-light .syntax-number,
+body.theme-light .syntax-type,
+body.theme-light .syntax-comment,
+body.theme-light .syntax-operator {
+    color: inherit;
 }
 
 .container {
@@ -103,6 +382,28 @@ body {
 
 .btn:active {
     transform: translateY(0);
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+    padding: 8px 16px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-icon::before {
+    content: '☀️';
+    font-size: 18px;
+}
+
+body.theme-dark .theme-icon::before {
+    content: '☀️';
+}
+
+body.theme-light .theme-icon::before {
+    content: '🌙';
 }
 
 /* Stats Display */
@@ -226,15 +527,22 @@ body {
     pointer-events: none;
 }
 
+/* Typed text and cursor container */
+.typed-text {
+    display: inline;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
 /* Cursor */
 .cursor {
-    position: absolute;
+    display: inline-block;
     width: 2px;
-    height: 1em;
+    height: 1.6em;
     background: #4A90E2;
     animation: blink 0.8s step-end infinite;
-    top: 25px;
-    left: 25px;
+    vertical-align: text-bottom;
+    margin-left: 1px;
     pointer-events: none;
 }
 

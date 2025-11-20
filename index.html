@@ -29,6 +29,9 @@
                     </select>
                 </div>
                 <button id="restart-btn" class="btn">새로 시작</button>
+                <button id="theme-toggle-btn" class="btn theme-toggle-btn" title="테마 전환">
+                    <span class="theme-icon"></span>
+                </button>
             </div>
         </header>
 
@@ -47,8 +50,9 @@
         <!-- User Input Area (Bottom) -->
         <div class="text-container">
             <div class="section-label">입력 영역</div>
-            <div id="user-input" class="text-display user-input"></div>
-            <div class="cursor" id="cursor"></div>
+            <div id="user-input" class="text-display user-input">
+                <span id="typed-text" class="typed-text"></span><span class="cursor" id="cursor"></span>
+            </div>
         </div>
 
         <!-- Hidden input for capturing keystrokes -->

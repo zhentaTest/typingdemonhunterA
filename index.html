@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>타이핑 연습 - 프로그래밍 언어 튜터</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="title">타이핑 연습 - 프로그래밍 언어 튜터</h1>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="language-select">언어:</label>
+                    <select id="language-select" class="select">
+                        <option value="typescript">TypeScript</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="godotscript">GodotScript</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="difficulty-select">난이도:</label>
+                    <select id="difficulty-select" class="select">
+                        <option value="beginner">초보</option>
+                        <option value="intermediate">중급</option>
+                        <option value="master">달인</option>
+                    </select>
+                </div>
+                <button id="restart-btn" class="btn">새로 시작</button>
+            </div>
+        </header>
+
+        <!-- Stats Display (Top Right) -->
+        <div class="stats">
+            <div class="timer" id="timer">0초</div>
+            <div class="wpm" id="wpm">WPM: 0</div>
+        </div>
+
+        <!-- Original Text Area (Top) -->
+        <div class="text-container">
+            <div class="section-label">타이핑할 내용</div>
+            <div id="original-text" class="text-display original-text"></div>
+        </div>
+
+        <!-- User Input Area (Bottom) -->
+        <div class="text-container">
+            <div class="section-label">입력 영역</div>
+            <div id="user-input" class="text-display user-input"></div>
+            <div class="cursor" id="cursor"></div>
+        </div>
+
+        <!-- Hidden input for capturing keystrokes -->
+        <textarea id="hidden-input" class="hidden-input" autofocus></textarea>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

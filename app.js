@@ -20,8 +20,10 @@ const elements = {
     languageSelect: document.getElementById('language-select'),
     difficultySelect: document.getElementById('difficulty-select'),
     restartBtn: document.getElementById('restart-btn'),
+    themeToggleBtn: document.getElementById('theme-toggle-btn'),
     originalText: document.getElementById('original-text'),
     userInputDiv: document.getElementById('user-input'),
+    typedText: document.getElementById('typed-text'),
     hiddenInput: document.getElementById('hidden-input'),
     timer: document.getElementById('timer'),
     wpm: document.getElementById('wpm'),
@@ -30,9 +32,24 @@ const elements = {
 
 // Initialize the application
 function init() {
+    initTheme();
     loadNewSample();
     attachEventListeners();
     elements.hiddenInput.focus();
+}
+
+// Initialize theme from localStorage
+function initTheme() {
+    const savedTheme = localStorage.getItem('typingPracticeTheme') || 'dark';
+    document.body.className = `theme-${savedTheme}`;
+}
+
+// Toggle theme between dark and light
+function toggleTheme() {
+    const currentTheme = document.body.classList.contains('theme-dark') ? 'dark' : 'light';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.body.className = `theme-${newTheme}`;
+    localStorage.setItem('typingPracticeTheme', newTheme);
 }
 
 // Attach event listeners
@@ -40,6 +57,7 @@ function attachEventListeners() {
     elements.languageSelect.addEventListener('change', handleLanguageChange);
     elements.difficultySelect.addEventListener('change', handleDifficultyChange);
     elements.restartBtn.addEventListener('click', handleRestart);
+    elements.themeToggleBtn.addEventListener('click', handleThemeToggle);
     elements.hiddenInput.addEventListener('input', handleInput);
     elements.hiddenInput.addEventListener('keydown', handleKeyDown);
 
@@ -47,6 +65,12 @@ function attachEventListeners() {
     document.addEventListener('click', () => {
         elements.hiddenInput.focus();
     });
+}
+
+// Handle theme toggle button click
+function handleThemeToggle(e) {
+    e.stopPropagation();
+    toggleTheme();
 }
 
 // Load a new code sample
@@ -143,9 +167,100 @@ function updateWPM() {
     elements.wpm.textContent = `WPM: ${wpm}`;
 }
 
-// Render original text with character highlighting
+// Syntax highlighting keywords by language
+const syntaxKeywords = {
+    javascript: ['const', 'let', 'var', 'function', 'if', 'else', 'return', 'class', 'extends', 'import', 'export', 'from', 'async', 'await', 'for', 'while', 'do', 'break', 'continue', 'switch', 'case', 'default', 'try', 'catch', 'finally', 'throw', 'new', 'this', 'super', 'static', 'get', 'set'],
+    typescript: ['const', 'let', 'var', 'function', 'if', 'else', 'return', 'class', 'extends', 'import', 'export', 'from', 'async', 'await', 'for', 'while', 'do', 'break', 'continue', 'switch', 'case', 'default', 'try', 'catch', 'finally', 'throw', 'new', 'this', 'super', 'static', 'get', 'set', 'interface', 'type', 'enum', 'namespace', 'implements', 'private', 'public', 'protected', 'readonly'],
+    godotscript: ['const', 'var', 'func', 'if', 'else', 'elif', 'return', 'class', 'extends', 'signal', 'for', 'while', 'break', 'continue', 'pass', 'match', 'enum', 'static', 'export', 'onready', 'setget', 'breakpoint', 'yield', 'preload', 'await']
+};
+
+// Apply syntax highlighting to code
+function applySyntaxHighlighting(code, language) {
+    const isDark = document.body.classList.contains('theme-dark');
+    if (!isDark) {
+        // No syntax highlighting in light mode
+        return code;
+    }
+
+    const keywords = syntaxKeywords[language] || [];
+    let highlighted = code;
+
+    // Create a map to store positions that should be skipped
+    const skipPositions = new Set();
+
+    // 1. Highlight strings (double and single quotes)
+    const stringPattern = /(["'`])(?:(?=(\\?))\2.)*?\1/g;
+    highlighted = highlighted.replace(stringPattern, (match, quote, offset) => {
+        for (let i = offset; i < offset + match.length; i++) {
+            skipPositions.add(i);
+        }
+        return `<span class="syntax-string">${match}</span>`;
+    });
+
+    // 2. Highlight comments
+    const commentPattern = /(\/\/.*?$|#.*?$)/gm;
+    let tempHighlighted = '';
+    let lastIndex = 0;
+    let match;
+    const regex = new RegExp(commentPattern);
+
+    while ((match = regex.exec(highlighted)) !== null) {
+        const isInSkipZone = Array.from(match[0]).some((_, i) => skipPositions.has(match.index + i));
+        if (!isInSkipZone) {
+            tempHighlighted += highlighted.slice(lastIndex, match.index);
+            tempHighlighted += `<span class="syntax-comment">${match[0]}</span>`;
+            for (let i = match.index; i < match.index + match[0].length; i++) {
+                skipPositions.add(i);
+            }
+            lastIndex = regex.lastIndex;
+        }
+    }
+    if (tempHighlighted) {
+        highlighted = tempHighlighted + highlighted.slice(lastIndex);
+    }
+
+    // 3. Highlight numbers
+    const numberPattern = /\b(\d+\.?\d*)\b/g;
+    highlighted = highlighted.replace(numberPattern, (match, num, offset) => {
+        const isInSkipZone = Array.from(match).some((_, i) => skipPositions.has(offset + i));
+        if (isInSkipZone) return match;
+        for (let i = offset; i < offset + match.length; i++) {
+            skipPositions.add(i);
+        }
+        return `<span class="syntax-number">${match}</span>`;
+    });
+
+    // 4. Highlight keywords
+    keywords.forEach(keyword => {
+        const keywordPattern = new RegExp(`\\b(${keyword})\\b`, 'g');
+        highlighted = highlighted.replace(keywordPattern, (match, kw, offset) => {
+            const isInSkipZone = Array.from(match).some((_, i) => skipPositions.has(offset + i));
+            if (isInSkipZone) return match;
+            for (let i = offset; i < offset + match.length; i++) {
+                skipPositions.add(i);
+            }
+            return `<span class="syntax-keyword">${match}</span>`;
+        });
+    });
+
+    // 5. Highlight function calls (identifier followed by opening parenthesis)
+    const functionPattern = /\b([a-zA-Z_][a-zA-Z0-9_]*)\s*\(/g;
+    highlighted = highlighted.replace(functionPattern, (match, funcName, offset) => {
+        const isInSkipZone = Array.from(funcName).some((_, i) => skipPositions.has(offset + i));
+        if (isInSkipZone) return match;
+        for (let i = offset; i < offset + funcName.length; i++) {
+            skipPositions.add(i);
+        }
+        return `<span class="syntax-function">${funcName}</span>` + match.slice(funcName.length);
+    });
+
+    return highlighted;
+}
+
+// Render original text with character highlighting and syntax highlighting
 function renderOriginalText() {
     const code = state.currentSample.code;
+    const isDark = document.body.classList.contains('theme-dark');
     let html = '';
 
     for (let i = 0; i < code.length; i++) {
@@ -153,6 +268,7 @@ function renderOriginalText() {
         const escapedChar = escapeHtml(char);
 
         let className = 'char';
+        let syntaxClass = '';
 
         if (i < state.currentPosition) {
             // Already typed
@@ -166,10 +282,84 @@ function renderOriginalText() {
             className += ' current';
         }
 
-        html += `<span class="${className}">${escapedChar}</span>`;
+        // Apply syntax highlighting in dark mode
+        if (isDark && i >= state.currentPosition) {
+            syntaxClass = getSyntaxClass(code, i, state.currentLanguage);
+        }
+
+        const finalClass = syntaxClass ? `${className} ${syntaxClass}` : className;
+        html += `<span class="${finalClass}">${escapedChar}</span>`;
     }
 
     elements.originalText.innerHTML = html;
+}
+
+// Get syntax class for a specific character position
+function getSyntaxClass(code, position, language) {
+    const keywords = syntaxKeywords[language] || [];
+
+    // Check if in string
+    let inString = false;
+    let stringChar = null;
+    for (let i = 0; i < position; i++) {
+        if ((code[i] === '"' || code[i] === "'" || code[i] === '`') && (i === 0 || code[i - 1] !== '\\')) {
+            if (!inString) {
+                inString = true;
+                stringChar = code[i];
+            } else if (code[i] === stringChar) {
+                inString = false;
+                stringChar = null;
+            }
+        }
+    }
+    if (inString) return 'syntax-string';
+
+    // Check if in comment
+    const beforePosition = code.slice(0, position);
+    const currentLine = beforePosition.split('\n').pop();
+    if (currentLine.includes('//') || currentLine.includes('#')) {
+        const commentStart = Math.max(currentLine.lastIndexOf('//'), currentLine.lastIndexOf('#'));
+        const posInLine = position - (beforePosition.length - currentLine.length);
+        if (posInLine >= commentStart) {
+            return 'syntax-comment';
+        }
+    }
+
+    // Check if number
+    const charAtPos = code[position];
+    if (/\d/.test(charAtPos)) {
+        // Check if part of a number
+        let start = position;
+        let end = position;
+        while (start > 0 && /[\d.]/.test(code[start - 1])) start--;
+        while (end < code.length - 1 && /[\d.]/.test(code[end + 1])) end++;
+        const numberStr = code.slice(start, end + 1);
+        if (/^\d+\.?\d*$/.test(numberStr)) {
+            return 'syntax-number';
+        }
+    }
+
+    // Check if keyword
+    let wordStart = position;
+    let wordEnd = position;
+    while (wordStart > 0 && /[a-zA-Z_]/.test(code[wordStart - 1])) wordStart--;
+    while (wordEnd < code.length - 1 && /[a-zA-Z_]/.test(code[wordEnd + 1])) wordEnd++;
+    const word = code.slice(wordStart, wordEnd + 1);
+
+    if (keywords.includes(word)) {
+        return 'syntax-keyword';
+    }
+
+    // Check if function name (followed by parenthesis)
+    if (/[a-zA-Z_]/.test(charAtPos)) {
+        let nextNonSpace = wordEnd + 1;
+        while (nextNonSpace < code.length && /\s/.test(code[nextNonSpace])) nextNonSpace++;
+        if (code[nextNonSpace] === '(') {
+            return 'syntax-function';
+        }
+    }
+
+    return '';
 }
 
 // Render user input with error highlighting
@@ -193,41 +383,7 @@ function renderUserInput() {
         html += `<span class="${className}">${escapedChar}</span>`;
     }
 
-    elements.userInputDiv.innerHTML = html;
-    updateCursorPosition();
-}
-
-// Update cursor position
-function updateCursorPosition() {
-    // Create a temporary span to measure the position
-    const tempSpan = document.createElement('span');
-    tempSpan.style.visibility = 'hidden';
-    tempSpan.style.position = 'absolute';
-
-    // Copy the input text up to current position
-    const code = state.currentSample.code;
-    let textContent = '';
-
-    for (let i = 0; i < state.userInput.length; i++) {
-        textContent += escapeHtml(state.userInput[i]);
-    }
-
-    tempSpan.innerHTML = textContent;
-    elements.userInputDiv.appendChild(tempSpan);
-
-    // Get the width and position
-    const rect = tempSpan.getBoundingClientRect();
-    const containerRect = elements.userInputDiv.getBoundingClientRect();
-
-    // Calculate cursor position
-    const cursorLeft = rect.right - containerRect.left;
-    const cursorTop = rect.top - containerRect.top;
-
-    elements.cursor.style.left = `${cursorLeft}px`;
-    elements.cursor.style.top = `${cursorTop}px`;
-
-    // Remove temp span
-    elements.userInputDiv.removeChild(tempSpan);
+    elements.typedText.innerHTML = html;
 }
 
 // Handle input event

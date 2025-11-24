@@ -2,7 +2,10 @@
 const state = {
     currentLanguage: 'typescript',
     currentDifficulty: 'beginner',
+    currentChapter: '--',
+    isEducationMode: false,
     currentSample: null,
+    currentChapterData: null,
     userInput: '',
     currentPosition: 0,
     isStarted: false,
@@ -20,6 +23,7 @@ const state = {
 const elements = {
     languageSelect: document.getElementById('language-select'),
     difficultySelect: document.getElementById('difficulty-select'),
+    chapterSelect: document.getElementById('chapter-select'),
     restartBtn: document.getElementById('restart-btn'),
     themeToggleBtn: document.getElementById('theme-toggle-btn'),
     originalText: document.getElementById('original-text'),
@@ -28,12 +32,19 @@ const elements = {
     hiddenInput: document.getElementById('hidden-input'),
     timer: document.getElementById('timer'),
     wpm: document.getElementById('wpm'),
-    cursor: document.getElementById('cursor')
+    cursor: document.getElementById('cursor'),
+    lessonContent: document.getElementById('lesson-content'),
+    lessonTitle: document.getElementById('lesson-title'),
+    lessonDescription: document.getElementById('lesson-description'),
+    lessonHints: document.getElementById('lesson-hints'),
+    expectedOutput: document.getElementById('expected-output'),
+    outputContent: document.getElementById('output-content')
 };
 
 // Initialize the application
 function init() {
     initTheme();
+    updateChapterOptions();
     loadNewSample();
     attachEventListeners();
     elements.hiddenInput.focus();
@@ -57,6 +68,7 @@ function toggleTheme() {
 function attachEventListeners() {
     elements.languageSelect.addEventListener('change', handleLanguageChange);
     elements.difficultySelect.addEventListener('change', handleDifficultyChange);
+    elements.chapterSelect.addEventListener('change', handleChapterChange);
     elements.restartBtn.addEventListener('click', handleRestart);
     elements.themeToggleBtn.addEventListener('click', handleThemeToggle);
     elements.hiddenInput.addEventListener('input', handleInput);
@@ -74,22 +86,137 @@ function handleThemeToggle(e) {
     toggleTheme();
 }
 
+// Update chapter options based on language and difficulty
+function updateChapterOptions() {
+    const language = state.currentLanguage;
+    const difficulty = state.currentDifficulty;
+
+    // Get chapters for current language and difficulty
+    const chapterList = chapters[language] && chapters[language][difficulty]
+        ? chapters[language][difficulty]
+        : [];
+
+    // Clear existing options except the first one (--)
+    elements.chapterSelect.innerHTML = '<option value="--">--</option>';
+
+    // Add chapter options
+    chapterList.forEach((chapter, index) => {
+        const option = document.createElement('option');
+        option.value = String(chapter.id).padStart(2, '0');
+        option.textContent = String(chapter.id).padStart(2, '0');
+
+        // Check if chapter is completed
+        const progress = loadProgress(language, difficulty);
+        if (progress[option.value]?.completed) {
+            option.textContent += ' ✓';
+        }
+
+        elements.chapterSelect.appendChild(option);
+    });
+}
+
+// Handle chapter selection change
+function handleChapterChange(e) {
+    state.currentChapter = e.target.value;
+    loadNewSample();
+}
+
 // Load a new code sample
 function loadNewSample() {
-    const samples = codeSamples[state.currentLanguage][state.currentDifficulty];
-    let selectedSample;
+    if (state.currentChapter === '--') {
+        // Mode A: Random code sample (existing mode)
+        state.isEducationMode = false;
+        const samples = codeSamples[state.currentLanguage][state.currentDifficulty];
+        let selectedSample;
 
-    // Avoid selecting the same sample consecutively
-    do {
-        const randomIndex = Math.floor(Math.random() * samples.length);
-        selectedSample = samples[randomIndex];
-    } while (samples.length > 1 && selectedSample.id === state.lastSampleId);
+        // Avoid selecting the same sample consecutively
+        do {
+            const randomIndex = Math.floor(Math.random() * samples.length);
+            selectedSample = samples[randomIndex];
+        } while (samples.length > 1 && selectedSample.id === state.lastSampleId);
 
-    state.currentSample = selectedSample;
-    state.lastSampleId = selectedSample.id;
+        state.currentSample = selectedSample;
+        state.lastSampleId = selectedSample.id;
+        state.currentChapterData = null;
+
+        hideEducationMode();
+    } else {
+        // Mode B: Chapter-based education mode
+        state.isEducationMode = true;
+        const chapterNumber = parseInt(state.currentChapter);
+        const chapterData = loadChapterData(state.currentLanguage, state.currentDifficulty, chapterNumber);
+
+        if (chapterData) {
+            state.currentChapterData = chapterData;
+            state.currentSample = { id: `chapter-${chapterNumber}`, code: chapterData.code };
+
+            showEducationMode();
+        } else {
+            // Fallback to random mode if chapter not found
+            console.error('Chapter not found:', chapterNumber);
+            state.currentChapter = '--';
+            elements.chapterSelect.value = '--';
+            return loadNewSample();
+        }
+    }
+
     resetState();
     renderOriginalText();
     renderUserInput();
+}
+
+// Load chapter data
+function loadChapterData(language, difficulty, chapterNumber) {
+    const chapterList = chapters[language] && chapters[language][difficulty]
+        ? chapters[language][difficulty]
+        : [];
+
+    return chapterList.find(ch => ch.id === chapterNumber);
+}
+
+// Show education mode UI
+function showEducationMode() {
+    if (!state.currentChapterData) return;
+
+    // Show lesson content
+    elements.lessonTitle.textContent = state.currentChapterData.title;
+    elements.lessonDescription.textContent = state.currentChapterData.description;
+
+    if (state.currentChapterData.hints) {
+        elements.lessonHints.textContent = state.currentChapterData.hints;
+        elements.lessonHints.style.display = 'block';
+    } else {
+        elements.lessonHints.style.display = 'none';
+    }
+
+    elements.lessonContent.style.display = 'block';
+
+    // Show expected output
+    elements.outputContent.textContent = state.currentChapterData.expectedOutput;
+    elements.expectedOutput.style.display = 'block';
+}
+
+// Hide education mode UI
+function hideEducationMode() {
+    elements.lessonContent.style.display = 'none';
+    elements.expectedOutput.style.display = 'none';
+}
+
+// Save progress to localStorage
+function saveProgress(language, difficulty, chapter, completed) {
+    const key = `progress_${language}_${difficulty}`;
+    let progress = JSON.parse(localStorage.getItem(key)) || {};
+    progress[chapter] = {
+        completed: completed,
+        timestamp: new Date().toISOString()
+    };
+    localStorage.setItem(key, JSON.stringify(progress));
+}
+
+// Load progress from localStorage
+function loadProgress(language, difficulty) {
+    const key = `progress_${language}_${difficulty}`;
+    return JSON.parse(localStorage.getItem(key)) || {};
 }
 
 // Reset application state
@@ -604,10 +731,45 @@ function handleCompletion() {
     console.log('WPM:', finalWPM);
     console.log('정확도:', accuracy + '%');
 
-    // Show completion message (optional - can be implemented later)
+    // Save progress if in education mode
+    if (state.isEducationMode && state.currentChapter !== '--') {
+        saveProgress(state.currentLanguage, state.currentDifficulty, state.currentChapter, true);
+        updateChapterOptions(); // Update UI to show completion checkmark
+    }
+
+    // Show completion message
     setTimeout(() => {
-        alert(`완료!\n시간: ${formatTime(state.elapsedTime)}\nWPM: ${finalWPM}\n정확도: ${accuracy}%`);
+        showCompletionMessage(finalWPM, accuracy);
     }, 100);
+}
+
+// Show completion message with next chapter option
+function showCompletionMessage(finalWPM, accuracy) {
+    let message = `완료!\n시간: ${formatTime(state.elapsedTime)}\nWPM: ${finalWPM}\n정확도: ${accuracy}%`;
+
+    // Add next chapter option in education mode
+    if (state.isEducationMode && state.currentChapter !== '--') {
+        const currentChapterNum = parseInt(state.currentChapter);
+        const chapterList = chapters[state.currentLanguage] && chapters[state.currentLanguage][state.currentDifficulty]
+            ? chapters[state.currentLanguage][state.currentDifficulty]
+            : [];
+
+        const nextChapter = chapterList.find(ch => ch.id === currentChapterNum + 1);
+
+        if (nextChapter) {
+            message += `\n\n다음 챕터로 이동하시겠습니까?\n챕터 ${String(nextChapter.id).padStart(2, '0')}: ${nextChapter.title}`;
+
+            if (confirm(message)) {
+                // Move to next chapter
+                state.currentChapter = String(nextChapter.id).padStart(2, '0');
+                elements.chapterSelect.value = state.currentChapter;
+                loadNewSample();
+                return;
+            }
+        }
+    }
+
+    alert(message);
 }
 
 // Format time for display
@@ -629,12 +791,18 @@ function formatTime(seconds) {
 // Handle language change
 function handleLanguageChange(e) {
     state.currentLanguage = e.target.value;
+    state.currentChapter = '--';
+    elements.chapterSelect.value = '--';
+    updateChapterOptions();
     loadNewSample();
 }
 
 // Handle difficulty change
 function handleDifficultyChange(e) {
     state.currentDifficulty = e.target.value;
+    state.currentChapter = '--';
+    elements.chapterSelect.value = '--';
+    updateChapterOptions();
     loadNewSample();
 }
 

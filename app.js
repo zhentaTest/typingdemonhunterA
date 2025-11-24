@@ -94,6 +94,10 @@ function loadNewSample() {
 
 // Reset application state
 function resetState() {
+    console.log('=== 타이핑 초기화 ===');
+    console.log('userInput (초기화 전):', JSON.stringify(state.userInput));
+    console.log('userInput length (초기화 전):', state.userInput.length);
+
     state.userInput = '';
     state.currentPosition = 0;
     state.isStarted = false;
@@ -110,6 +114,11 @@ function resetState() {
     }
 
     elements.hiddenInput.value = '';
+
+    console.log('userInput (초기화 후):', JSON.stringify(state.userInput));
+    console.log('userInput length (초기화 후):', state.userInput.length);
+    console.log('✅ 초기화 완료: 입력 영역이 완전히 비어있어야 함');
+
     updateTimer();
     updateWPM();
 }
@@ -428,6 +437,21 @@ function handleInput(e) {
 
 // Skip blank lines automatically and auto-indent
 function skipBlankLines(e) {
+    console.log('=== skipBlankLines 호출됨 ===');
+    console.log('userInput length:', state.userInput.length);
+    console.log('userInput:', JSON.stringify(state.userInput));
+    console.log('currentPosition:', state.currentPosition);
+
+    // ✅✅✅ 첫 번째 줄 절대 보호 ✅✅✅
+    // 사용자가 첫 번째 줄을 타이핑하는 중이면 들여쓰기를 건너뛰지 않음
+    const currentLineNumber = (state.userInput.match(/\n/g) || []).length;
+    if (currentLineNumber === 0) {
+        console.log('❌ 첫 번째 줄이므로 들여쓰기 건너뛰기를 실행하지 않습니다');
+        return; // 즉시 종료!
+    }
+
+    console.log('✅ 들여쓰기 처리 진행 (현재 줄 번호:', currentLineNumber, ')');
+
     const code = state.currentSample.code;
     let position = state.userInput.length;
     let skippedChars = 0;
@@ -482,6 +506,7 @@ function skipBlankLines(e) {
 
         // If there is indentation, auto-skip it
         if (indentCount > 0) {
+            console.log('들여쓰기 추가:', indentCount, '개의 공백');
             const indentation = currentLine.substring(0, indentCount);
             state.userInput += indentation;
             skippedChars += indentation.length;
@@ -495,6 +520,7 @@ function skipBlankLines(e) {
 
     // Track the total auto-skipped characters
     state.autoSkippedChars += skippedChars;
+    console.log('총 건너뛴 글자 수:', skippedChars);
 }
 
 // Handle keydown event for special keys
@@ -530,9 +556,38 @@ function countCharacters() {
     state.incorrectChars = incorrect;
 }
 
+// Check if all characters are correct (for completion validation)
+function areAllCharactersCorrect() {
+    const originalText = state.currentSample.code;
+    const userText = state.userInput;
+
+    // ✅ 길이가 같고 내용이 정확히 일치하는지 확인
+    if (userText.length !== originalText.length) {
+        console.log('길이 불일치: 원본', originalText.length, '입력', userText.length);
+        return false;
+    }
+
+    // ✅ 모든 글자가 정확히 일치하는지 확인
+    for (let i = 0; i < originalText.length; i++) {
+        if (userText[i] !== originalText[i]) {
+            console.log(`틀린 글자 발견: 위치 ${i}, 예상 "${originalText[i]}", 입력 "${userText[i]}"`);
+            return false;
+        }
+    }
+
+    console.log('✅ 모든 글자가 정확함');
+    return true; // 모든 글자가 정확함
+}
+
 // Handle typing completion
 function handleCompletion() {
     if (state.isCompleted) return;
+
+    // ✅ 완료 조건 재확인: 모든 글자가 정확해야 함
+    if (!areAllCharactersCorrect()) {
+        console.log('완료 조건을 만족하지 않아 완료 처리를 중단합니다');
+        return;
+    }
 
     state.isCompleted = true;
     stopTimer();
@@ -543,6 +598,11 @@ function handleCompletion() {
     // Exclude auto-skipped characters from WPM calculation
     const actualTypedChars = state.correctChars - state.autoSkippedChars;
     const finalWPM = Math.round((actualTypedChars / 5) / minutes);
+
+    console.log('✅ 타이핑 완료!');
+    console.log('시간:', formatTime(state.elapsedTime));
+    console.log('WPM:', finalWPM);
+    console.log('정확도:', accuracy + '%');
 
     // Show completion message (optional - can be implemented later)
     setTimeout(() => {

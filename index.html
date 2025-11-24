@@ -28,6 +28,12 @@
                         <option value="master">달인</option>
                     </select>
                 </div>
+                <div class="control-group">
+                    <label for="chapter-select">챕터:</label>
+                    <select id="chapter-select" class="select">
+                        <option value="--">--</option>
+                    </select>
+                </div>
                 <button id="restart-btn" class="btn">새로 시작</button>
                 <button id="theme-toggle-btn" class="btn theme-toggle-btn" title="테마 전환">
                     <span class="theme-icon"></span>
@@ -39,6 +45,13 @@
         <div class="stats">
             <div class="timer" id="timer">0초</div>
             <div class="wpm" id="wpm">WPM: 0</div>
+        </div>
+
+        <!-- Lesson Content Area (Education Mode Only) -->
+        <div id="lesson-content" class="lesson-section" style="display: none;">
+            <h3>📖 <span id="lesson-title"></span></h3>
+            <p id="lesson-description"></p>
+            <p id="lesson-hints" class="hints" style="display: none;"></p>
         </div>
 
         <!-- Original Text Area (Top) -->
@@ -53,11 +66,18 @@
             <div id="user-input" class="text-display user-input"><span id="typed-text" class="typed-text"></span><span class="cursor" id="cursor"></span></div>
         </div>
 
+        <!-- Expected Output Area (Education Mode Only) -->
+        <div id="expected-output" class="output-section" style="display: none;">
+            <h4>💻 예상 실행 결과</h4>
+            <pre id="output-content"></pre>
+        </div>
+
         <!-- Hidden input for capturing keystrokes -->
         <textarea id="hidden-input" class="hidden-input" autofocus></textarea>
     </div>
 
     <script src="data.js"></script>
+    <script src="chapters.js"></script>
     <script src="app.js"></script>
 </body>
 </html>

@@ -679,11 +679,12 @@ body.theme-light .theme-icon::before {
 
 /* Lesson Content Section */
 .lesson-section {
-    background-color: #2a2a2a;
-    padding: 20px;
+    background: linear-gradient(135deg, #1e2a3a 0%, #2a2a3a 100%);
+    padding: 30px;
     margin-bottom: 20px;
-    border-radius: 8px;
+    border-radius: 12px;
     border-left: 4px solid #4A90E2;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     animation: slideInDown 0.3s ease-out;
 }
 
@@ -698,19 +699,109 @@ body.theme-light .theme-icon::before {
     }
 }
 
-.lesson-section h3 {
+.lesson-section > h3 {
     color: #4A90E2;
-    margin-bottom: 10px;
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.lesson-section p {
+/* Subsection boxes within lesson content */
+.lesson-intro,
+.lesson-why,
+.lesson-example,
+.lesson-key {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border-left: 3px solid #4A90E2;
+}
+
+.lesson-intro {
+    border-left-color: #4A90E2; /* Blue */
+}
+
+.lesson-why {
+    border-left-color: #f0ad4e; /* Orange */
+}
+
+.lesson-example {
+    border-left-color: #5cb85c; /* Green */
+}
+
+.lesson-key {
+    border-left-color: #9b59b6; /* Purple */
+}
+
+/* Subsection titles */
+.lesson-section h4 {
     color: #c9d1d9;
-    line-height: 1.6;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Subsection content */
+.lesson-section p {
+    color: #8b949e;
+    line-height: 1.8;
     font-size: 15px;
-    margin: 8px 0;
+    margin: 0;
+}
+
+/* Code example box within lesson */
+.lesson-example pre {
+    background-color: #161b22;
+    padding: 15px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
+.lesson-example code {
+    color: #c9d1d9;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Key points list */
+.lesson-key ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+
+.lesson-key li {
+    color: #8b949e;
+    padding: 8px 0;
+    padding-left: 25px;
+    position: relative;
+    line-height: 1.6;
+}
+
+.lesson-key li::before {
+    content: "▸";
+    position: absolute;
+    left: 0;
+    color: #4A90E2;
+    font-weight: bold;
+}
+
+.lesson-key code {
+    background-color: rgba(110, 118, 129, 0.4);
+    color: #79c0ff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: 'Consolas', 'Monaco', monospace;
+    font-size: 13px;
 }
 
 .lesson-section .hints {
@@ -724,13 +815,14 @@ body.theme-light .theme-icon::before {
     border-left: 3px solid #58a6ff;
 }
 
-/* Expected Output Section */
+/* Expected Output Section - Terminal Style */
 .output-section {
-    background-color: #1a1a1a;
+    background-color: #0d1117;
     padding: 20px;
     margin-top: 20px;
     border-radius: 8px;
     border: 1px solid #30363d;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     animation: slideInUp 0.3s ease-out;
 }
 
@@ -746,10 +838,42 @@ body.theme-light .theme-icon::before {
 }
 
 .output-section h4 {
-    color: #4A90E2;
-    margin-bottom: 10px;
+    color: #58a6ff;
+    margin-bottom: 15px;
     font-size: 16px;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Terminal output container */
+.terminal-output {
+    background-color: #000000;
+    padding: 20px;
+    border-radius: 6px;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #00ff00;
+}
+
+/* Terminal prompt */
+.terminal-prompt {
+    color: #4A90E2;
+    font-weight: bold;
+}
+
+/* Terminal command */
+.terminal-command {
+    color: #c9d1d9;
+    margin-left: 5px;
+}
+
+/* Terminal result output */
+.terminal-result {
+    color: #00ff00;
+    margin-top: 5px;
 }
 
 .output-section pre {
@@ -764,16 +888,45 @@ body.theme-light .theme-icon::before {
 
 /* Light Theme - Lesson Section */
 body.theme-light .lesson-section {
-    background-color: #f0f0f0;
+    background: linear-gradient(135deg, #f6f8fa 0%, #ffffff 100%);
     border-left-color: #0969da;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-body.theme-light .lesson-section h3 {
+body.theme-light .lesson-intro,
+body.theme-light .lesson-why,
+body.theme-light .lesson-example,
+body.theme-light .lesson-key {
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+body.theme-light .lesson-section > h3 {
     color: #0969da;
 }
 
-body.theme-light .lesson-section p {
+body.theme-light .lesson-section h4 {
     color: #24292f;
+}
+
+body.theme-light .lesson-section p {
+    color: #57606a;
+}
+
+body.theme-light .lesson-example pre {
+    background-color: #f6f8fa;
+}
+
+body.theme-light .lesson-example code {
+    color: #24292f;
+}
+
+body.theme-light .lesson-key li {
+    color: #57606a;
+}
+
+body.theme-light .lesson-key code {
+    background-color: rgba(175, 184, 193, 0.2);
+    color: #0969da;
 }
 
 body.theme-light .lesson-section .hints {
@@ -789,6 +942,15 @@ body.theme-light .output-section {
 }
 
 body.theme-light .output-section h4 {
+    color: #0969da;
+}
+
+body.theme-light .terminal-output {
+    background-color: #f6f8fa;
+    color: #24292f;
+}
+
+body.theme-light .terminal-result {
     color: #0969da;
 }
 

@@ -36,9 +36,8 @@ const elements = {
     lessonContent: document.getElementById('lesson-content'),
     lessonTitle: document.getElementById('lesson-title'),
     lessonDescription: document.getElementById('lesson-description'),
-    lessonHints: document.getElementById('lesson-hints'),
     expectedOutput: document.getElementById('expected-output'),
-    outputContent: document.getElementById('output-content')
+    terminalContent: document.getElementById('terminal-content')
 };
 
 // Initialize the application
@@ -180,20 +179,55 @@ function showEducationMode() {
 
     // Show lesson content
     elements.lessonTitle.textContent = state.currentChapterData.title;
-    elements.lessonDescription.textContent = state.currentChapterData.description;
-
-    if (state.currentChapterData.hints) {
-        elements.lessonHints.textContent = state.currentChapterData.hints;
-        elements.lessonHints.style.display = 'block';
-    } else {
-        elements.lessonHints.style.display = 'none';
-    }
+    // Use innerHTML to render HTML structure in description
+    elements.lessonDescription.innerHTML = state.currentChapterData.description;
 
     elements.lessonContent.style.display = 'block';
 
-    // Show expected output
-    elements.outputContent.textContent = state.currentChapterData.expectedOutput;
+    // Show expected output with terminal formatting
+    renderTerminalOutput(state.currentChapterData.expectedOutput);
     elements.expectedOutput.style.display = 'block';
+}
+
+// Render terminal output with proper formatting
+function renderTerminalOutput(outputData) {
+    if (!elements.terminalContent) return;
+
+    if (typeof outputData === 'object' && outputData.type === 'console') {
+        // Terminal-style output with commands
+        let html = '';
+
+        outputData.commands.forEach((line, index) => {
+            if (index === 0) {
+                // First line: command with prompt ($)
+                const command = line.startsWith('$ ') ? line.substring(2) : line;
+                html += `<div>
+                    <span class="terminal-prompt">$</span>
+                    <span class="terminal-command">${escapeTerminalHtml(command)}</span>
+                </div>`;
+            } else {
+                // Other lines: output results
+                html += `<div class="terminal-result">${escapeTerminalHtml(line)}</div>`;
+            }
+        });
+
+        elements.terminalContent.innerHTML = html;
+    } else {
+        // Plain text output (backward compatibility)
+        elements.terminalContent.innerHTML = `<div class="terminal-result">${escapeTerminalHtml(String(outputData))}</div>`;
+    }
+}
+
+// Escape HTML for terminal output (simpler than full escapeHtml)
+function escapeTerminalHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
 }
 
 // Hide education mode UI

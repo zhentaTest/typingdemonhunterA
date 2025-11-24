@@ -7,11 +7,16 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <h1 class="title">타이핑 연습 - 프로그래밍 언어 튜터</h1>
-            <div class="controls">
+    <!-- 고정 헤더 (Sticky Header) -->
+    <header class="sticky-header">
+        <div class="header-container">
+            <!-- 왼쪽: 제목 -->
+            <div class="header-left">
+                <h1 class="title">타이핑 연습 - 프로그래밍 언어 튜터</h1>
+            </div>
+
+            <!-- 중앙: 설정 메뉴 -->
+            <div class="header-center">
                 <div class="control-group">
                     <label for="language-select">언어:</label>
                     <select id="language-select" class="select">
@@ -34,18 +39,26 @@
                         <option value="--">--</option>
                     </select>
                 </div>
-                <button id="restart-btn" class="btn">새로 시작</button>
+                <button id="restart-btn" class="btn btn-restart">새로 시작</button>
                 <button id="theme-toggle-btn" class="btn theme-toggle-btn" title="테마 전환">
                     <span class="theme-icon"></span>
                 </button>
             </div>
-        </header>
 
-        <!-- Stats Display (Top Right) -->
-        <div class="stats">
-            <div class="timer" id="timer">0초</div>
-            <div class="wpm" id="wpm">WPM: 0</div>
+            <!-- 오른쪽: 타이머와 WPM -->
+            <div class="header-right">
+                <div class="timer-display">
+                    <span class="timer" id="timer">0초</span>
+                    <span class="timer-label">WPM: <span id="wpm">0</span></span>
+                </div>
+            </div>
         </div>
+    </header>
+
+    <!-- 헤더 여백 (고정 헤더가 본문을 가리지 않도록) -->
+    <div class="header-spacer"></div>
+
+    <div class="container">
 
         <!-- Lesson Content Area (Education Mode Only) -->
         <div id="lesson-content" class="lesson-section" style="display: none;">

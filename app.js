@@ -43,10 +43,46 @@ const elements = {
 // Initialize the application
 function init() {
     initTheme();
+    initStickyHeader();
     updateChapterOptions();
     loadNewSample();
     attachEventListeners();
     elements.hiddenInput.focus();
+}
+
+// Initialize sticky header (spacing and scroll effects)
+function initStickyHeader() {
+    adjustHeaderSpacing();
+
+    // Adjust spacing on window resize
+    window.addEventListener('resize', adjustHeaderSpacing);
+
+    // Add scroll effect for header shadow
+    window.addEventListener('scroll', handleScroll);
+}
+
+// Adjust header spacer height based on actual header height
+function adjustHeaderSpacing() {
+    const header = document.querySelector('.sticky-header');
+    const spacer = document.querySelector('.header-spacer');
+
+    if (header && spacer) {
+        const headerHeight = header.offsetHeight;
+        spacer.style.height = headerHeight + 'px';
+    }
+}
+
+// Handle scroll event for header shadow effect
+function handleScroll() {
+    const header = document.querySelector('.sticky-header');
+
+    if (header) {
+        if (window.scrollY > 10) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    }
 }
 
 // Initialize theme from localStorage

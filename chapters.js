@@ -47,7 +47,17 @@ console.log(name);`,
                         "$ ts-node example.ts",
                         "Alice"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "const로 변경 불가능한 상수 선언",
+                    "let으로 변경 가능한 변수 선언",
+                    "string, number, boolean 기본 타입 지정"
+                ],
+                canDoWith: [
+                    "사용자 정보(이름, 나이)를 타입 안전하게 저장",
+                    "컴파일 시점에 타입 오류 발견",
+                    "코드 자동완성 및 문서화 향상"
+                ]
             },
             {
                 id: 2,
@@ -94,7 +104,17 @@ console.log(numbers[0]);`,
                         "$ ts-node example.ts",
                         "1"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "number[], string[] 형식으로 배열 타입 지정",
+                    "배열 인덱스로 요소 접근 (0부터 시작)",
+                    ".length로 배열 길이 확인"
+                ],
+                canDoWith: [
+                    "점수 목록, 이름 목록 등 데이터 관리",
+                    "배열에 잘못된 타입 추가 방지",
+                    "반복문과 함께 데이터 처리"
+                ]
             },
             {
                 id: 3,
@@ -144,7 +164,17 @@ console.log(person.name);`,
                         "$ ts-node example.ts",
                         "Bob"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "{ 속성명: 타입 } 형식으로 객체 타입 정의",
+                    "점 표기법으로 속성 접근",
+                    "여러 관련 데이터를 하나로 묶기"
+                ],
+                canDoWith: [
+                    "사용자 프로필 객체 생성",
+                    "API 응답 데이터 구조화",
+                    "설정 값들을 객체로 관리"
+                ]
             },
             {
                 id: 4,
@@ -195,7 +225,17 @@ console.log(greet("World"));`,
                         "$ ts-node example.ts",
                         "Hello, World!"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "매개변수에 타입 지정: (name: string)",
+                    "반환 타입 지정: ): string",
+                    "템플릿 리터럴로 문자열 조합"
+                ],
+                canDoWith: [
+                    "재사용 가능한 유틸리티 함수 작성",
+                    "함수 호출 시 잘못된 인자 전달 방지",
+                    "함수 반환값 타입 보장"
+                ]
             },
             {
                 id: 5,
@@ -251,7 +291,17 @@ console.log(user.name);`,
                         "$ ts-node example.ts",
                         "Charlie"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "interface로 객체 구조 정의",
+                    "타입 재사용으로 코드 중복 감소",
+                    "명확한 계약(Contract) 정의"
+                ],
+                canDoWith: [
+                    "API 요청/응답 타입 정의",
+                    "컴포넌트 props 타입 정의",
+                    "팀원 간 데이터 구조 공유"
+                ]
             },
             {
                 id: 6,
@@ -315,7 +365,17 @@ console.log(item.name);`,
                         "$ ts-node example.ts",
                         "Laptop"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "속성?: 타입 형태로 선택적 속성 정의",
+                    "선택적 속성은 생략 가능",
+                    "필수와 선택 속성을 명확히 구분"
+                ],
+                canDoWith: [
+                    "유연한 설정 객체 정의",
+                    "선택적 기능 파라미터 처리",
+                    "API 요청 선택 필드 관리"
+                ]
             },
             {
                 id: 7,
@@ -372,7 +432,17 @@ console.log(point.x);`,
                         "$ ts-node example.ts",
                         "10"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "readonly 키워드로 읽기 전용 지정",
+                    "초기화 후 수정 불가",
+                    "데이터 불변성 보장"
+                ],
+                canDoWith: [
+                    "설정 값 보호",
+                    "좌표계 원점 등 상수 객체 정의",
+                    "실수로 값 변경하는 버그 방지"
+                ]
             },
             {
                 id: 8,
@@ -427,7 +497,17 @@ console.log(value);`,
                         "hello",
                         "42"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "타입1 | 타입2 형태로 정의",
+                    "둘 중 하나의 타입이면 OK",
+                    "여러 개도 가능: string | number | boolean"
+                ],
+                canDoWith: [
+                    "문자열/숫자 ID 둘 다 허용",
+                    "타입 안정성 유지하면서 유연성 확보",
+                    "여러 형태의 입력값 처리"
+                ]
             },
             {
                 id: 9,
@@ -482,7 +562,17 @@ console.log(userId);`,
                         "$ ts-node example.ts",
                         "user123"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "type 이름 = 타입 형태로 정의",
+                    "유니온, 객체 등 모든 타입 가능",
+                    "재사용성과 가독성 향상"
+                ],
+                canDoWith: [
+                    "복잡한 타입에 의미 있는 이름 부여",
+                    "타입 정의 한 곳에서 관리",
+                    "코드 일관성 유지"
+                ]
             },
             {
                 id: 10,
@@ -534,7 +624,17 @@ console.log(doubled);`,
                         "$ ts-node example.ts",
                         "[ 2, 4, 6, 8, 10 ]"
                     ]
-                }
+                },
+                keyConcepts: [
+                    "map은 새로운 배열 반환",
+                    "원본 배열은 변경되지 않음",
+                    "TypeScript가 결과 타입 자동 추론"
+                ],
+                canDoWith: [
+                    "데이터 변환 파이프라인 구성",
+                    "API 응답 데이터 가공",
+                    "UI용 데이터 포맷팅"
+                ]
             },
             {
                 id: 11,

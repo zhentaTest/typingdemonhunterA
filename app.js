@@ -37,7 +37,22 @@ const elements = {
     lessonTitle: document.getElementById('lesson-title'),
     lessonDescription: document.getElementById('lesson-description'),
     expectedOutput: document.getElementById('expected-output'),
-    terminalContent: document.getElementById('terminal-content')
+    terminalContent: document.getElementById('terminal-content'),
+    // Completion screen elements
+    container: document.querySelector('.container'),
+    completionScreen: document.getElementById('completion-screen'),
+    completionChapterTitle: document.getElementById('completion-chapter-title'),
+    completionTime: document.getElementById('completion-time'),
+    completionCps: document.getElementById('completion-cps'),
+    completionCpm: document.getElementById('completion-cpm'),
+    completionAccuracy: document.getElementById('completion-accuracy'),
+    completionConcepts: document.getElementById('completion-concepts'),
+    completionCando: document.getElementById('completion-cando'),
+    completionCode: document.getElementById('completion-code'),
+    completionTerminal: document.getElementById('completion-terminal'),
+    btnRetry: document.getElementById('btn-retry'),
+    btnNext: document.getElementById('btn-next'),
+    btnHome: document.getElementById('btn-home')
 };
 
 // Initialize the application
@@ -109,8 +124,16 @@ function attachEventListeners() {
     elements.hiddenInput.addEventListener('input', handleInput);
     elements.hiddenInput.addEventListener('keydown', handleKeyDown);
 
+    // Completion screen button event listeners
+    elements.btnRetry.addEventListener('click', handleRetry);
+    elements.btnNext.addEventListener('click', handleNextChapter);
+    elements.btnHome.addEventListener('click', handleGoHome);
+
     // Keep focus on hidden input
-    document.addEventListener('click', () => {
+    document.addEventListener('click', (e) => {
+        // Don't focus if clicking on completion screen buttons
+        if (e.target.closest('.completion-buttons')) return;
+        if (elements.completionScreen.style.display !== 'none') return;
         elements.hiddenInput.focus();
     });
 }
@@ -220,9 +243,8 @@ function showEducationMode() {
 
     elements.lessonContent.style.display = 'block';
 
-    // Show expected output with terminal formatting
-    renderTerminalOutput(state.currentChapterData.expectedOutput);
-    elements.expectedOutput.style.display = 'block';
+    // Hide expected output during typing - it will be shown on completion screen
+    elements.expectedOutput.style.display = 'none';
 }
 
 // Render terminal output with proper formatting
@@ -813,33 +835,169 @@ function handleCompletion() {
     }, 100);
 }
 
-// Show completion message with next chapter option
+// Show completion screen (replaces popup)
 function showCompletionMessage(finalWPM, accuracy) {
-    let message = `완료!\n시간: ${formatTime(state.elapsedTime)}\nWPM: ${finalWPM}\n정확도: ${accuracy}%`;
+    // Hide typing screen
+    elements.container.style.display = 'none';
 
-    // Add next chapter option in education mode
+    // Calculate CPS and CPM
+    const totalChars = state.currentSample.code.length;
+    const cps = state.elapsedTime > 0 ? (totalChars / state.elapsedTime).toFixed(1) : 0;
+    const cpm = Math.round(cps * 60);
+
+    // Get chapter info
+    const currentChapterNum = state.isEducationMode ? parseInt(state.currentChapter) : 0;
+    const chapterData = state.currentChapterData;
+
+    // Set chapter title
+    if (state.isEducationMode && chapterData) {
+        elements.completionChapterTitle.textContent = `챕터 ${String(currentChapterNum).padStart(2, '0')}: ${chapterData.title}`;
+    } else {
+        elements.completionChapterTitle.textContent = '연습 모드';
+    }
+
+    // Set stats
+    elements.completionTime.textContent = formatTime(state.elapsedTime);
+    elements.completionCps.textContent = `${cps}타/초`;
+    elements.completionCpm.textContent = cpm;
+    elements.completionAccuracy.textContent = `${accuracy}%`;
+
+    // Set learning content (keyConcepts and canDoWith)
+    const learningCard = document.querySelector('.learning-card');
+    if (state.isEducationMode && chapterData) {
+        learningCard.style.display = 'block';
+
+        // Set key concepts
+        const keyConcepts = chapterData.keyConcepts || getDefaultKeyConcepts(chapterData);
+        elements.completionConcepts.innerHTML = keyConcepts.map(c => `<li>${c}</li>`).join('');
+
+        // Set can do with
+        const canDoWith = chapterData.canDoWith || getDefaultCanDoWith(chapterData);
+        elements.completionCando.innerHTML = canDoWith.map(c => `<li>${c}</li>`).join('');
+    } else {
+        learningCard.style.display = 'none';
+    }
+
+    // Set typed code
+    elements.completionCode.textContent = state.currentSample.code;
+
+    // Set terminal output
+    if (state.isEducationMode && chapterData && chapterData.expectedOutput) {
+        renderCompletionTerminal(chapterData.expectedOutput);
+        document.querySelector('.result-card').style.display = 'block';
+    } else {
+        document.querySelector('.result-card').style.display = 'none';
+    }
+
+    // Configure next chapter button
+    if (state.isEducationMode && state.currentChapter !== '--') {
+        const chapterList = chapters[state.currentLanguage] && chapters[state.currentLanguage][state.currentDifficulty]
+            ? chapters[state.currentLanguage][state.currentDifficulty]
+            : [];
+        const nextChapter = chapterList.find(ch => ch.id === currentChapterNum + 1);
+
+        if (nextChapter) {
+            elements.btnNext.disabled = false;
+            elements.btnNext.textContent = `➡️ 다음 챕터`;
+        } else {
+            elements.btnNext.disabled = true;
+            elements.btnNext.textContent = '➡️ 마지막 챕터';
+        }
+    } else {
+        elements.btnNext.disabled = true;
+        elements.btnNext.textContent = '➡️ 다음 챕터';
+    }
+
+    // Show completion screen
+    elements.completionScreen.style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Get default key concepts from chapter description
+function getDefaultKeyConcepts(chapterData) {
+    // Extract from lesson-key section if keyConcepts not provided
+    const defaultConcepts = [
+        "이번 챕터의 핵심 문법을 학습했습니다",
+        "코드 작성 패턴을 익혔습니다",
+        "타입 안전성을 이해했습니다"
+    ];
+    return defaultConcepts;
+}
+
+// Get default can do with from chapter description
+function getDefaultCanDoWith(chapterData) {
+    const defaultCanDo = [
+        "배운 내용을 실제 프로젝트에 적용할 수 있습니다",
+        "코드의 안정성을 높일 수 있습니다",
+        "더 복잡한 기능을 구현할 준비가 되었습니다"
+    ];
+    return defaultCanDo;
+}
+
+// Render terminal output for completion screen
+function renderCompletionTerminal(outputData) {
+    if (!elements.completionTerminal) return;
+
+    if (typeof outputData === 'object' && outputData.type === 'console') {
+        let html = '';
+
+        outputData.commands.forEach((line, index) => {
+            if (index === 0) {
+                const command = line.startsWith('$ ') ? line.substring(2) : line;
+                html += `<div>
+                    <span class="terminal-prompt">$</span>
+                    <span class="terminal-command">${escapeTerminalHtml(command)}</span>
+                </div>`;
+            } else {
+                html += `<div class="terminal-result">${escapeTerminalHtml(line)}</div>`;
+            }
+        });
+
+        elements.completionTerminal.innerHTML = html;
+    } else {
+        elements.completionTerminal.innerHTML = `<div class="terminal-result">${escapeTerminalHtml(String(outputData))}</div>`;
+    }
+}
+
+// Hide completion screen and show typing screen
+function hideCompletionScreen() {
+    elements.completionScreen.style.display = 'none';
+    elements.container.style.display = 'block';
+}
+
+// Handle retry button click
+function handleRetry() {
+    hideCompletionScreen();
+    loadNewSample();
+    elements.hiddenInput.focus();
+}
+
+// Handle next chapter button click
+function handleNextChapter() {
     if (state.isEducationMode && state.currentChapter !== '--') {
         const currentChapterNum = parseInt(state.currentChapter);
         const chapterList = chapters[state.currentLanguage] && chapters[state.currentLanguage][state.currentDifficulty]
             ? chapters[state.currentLanguage][state.currentDifficulty]
             : [];
-
         const nextChapter = chapterList.find(ch => ch.id === currentChapterNum + 1);
 
         if (nextChapter) {
-            message += `\n\n다음 챕터로 이동하시겠습니까?\n챕터 ${String(nextChapter.id).padStart(2, '0')}: ${nextChapter.title}`;
-
-            if (confirm(message)) {
-                // Move to next chapter
-                state.currentChapter = String(nextChapter.id).padStart(2, '0');
-                elements.chapterSelect.value = state.currentChapter;
-                loadNewSample();
-                return;
-            }
+            hideCompletionScreen();
+            state.currentChapter = String(nextChapter.id).padStart(2, '0');
+            elements.chapterSelect.value = state.currentChapter;
+            loadNewSample();
+            elements.hiddenInput.focus();
         }
     }
+}
 
-    alert(message);
+// Handle go home button click
+function handleGoHome() {
+    hideCompletionScreen();
+    state.currentChapter = '--';
+    elements.chapterSelect.value = '--';
+    loadNewSample();
+    elements.hiddenInput.focus();
 }
 
 // Format time for display

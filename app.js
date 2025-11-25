@@ -38,6 +38,11 @@ const elements = {
     lessonDescription: document.getElementById('lesson-description'),
     expectedOutput: document.getElementById('expected-output'),
     terminalContent: document.getElementById('terminal-content'),
+    // Progress elements
+    progressPercentage: document.getElementById('progress-percentage'),
+    progressBar: document.getElementById('progress-bar'),
+    currentChar: document.getElementById('current-char'),
+    totalChar: document.getElementById('total-char'),
     // Completion screen elements
     container: document.querySelector('.container'),
     completionScreen: document.getElementById('completion-screen'),
@@ -221,6 +226,7 @@ function loadNewSample() {
     resetState();
     renderOriginalText();
     renderUserInput();
+    updateProgress();
 }
 
 // Load chapter data
@@ -388,7 +394,7 @@ function updateTimer() {
 // Update WPM (Words Per Minute) display
 function updateWPM() {
     if (state.elapsedTime === 0) {
-        elements.wpm.textContent = 'WPM: 0';
+        elements.wpm.textContent = '0';
         return;
     }
 
@@ -396,7 +402,44 @@ function updateWPM() {
     // Exclude auto-skipped characters from WPM calculation
     const actualTypedChars = state.correctChars - state.autoSkippedChars;
     const wpm = Math.round((actualTypedChars / 5) / minutes);
-    elements.wpm.textContent = `WPM: ${wpm}`;
+    elements.wpm.textContent = wpm;
+}
+
+// Update progress bar and percentage
+function updateProgress() {
+    if (!state.currentSample) return;
+
+    const total = state.currentSample.code.length;
+    const current = state.currentPosition;
+    const percentage = total > 0 ? Math.round((current / total) * 100) : 0;
+
+    // Update progress percentage text
+    if (elements.progressPercentage) {
+        elements.progressPercentage.textContent = `${percentage}%`;
+
+        // Update color class based on percentage
+        elements.progressPercentage.classList.remove('low', 'mid', 'high');
+        if (percentage < 50) {
+            elements.progressPercentage.classList.add('low');
+        } else if (percentage < 75) {
+            elements.progressPercentage.classList.add('mid');
+        } else {
+            elements.progressPercentage.classList.add('high');
+        }
+    }
+
+    // Update progress bar
+    if (elements.progressBar) {
+        elements.progressBar.style.width = `${percentage}%`;
+    }
+
+    // Update character count
+    if (elements.currentChar) {
+        elements.currentChar.textContent = current;
+    }
+    if (elements.totalChar) {
+        elements.totalChar.textContent = total;
+    }
 }
 
 // Syntax highlighting keywords by language
@@ -652,6 +695,7 @@ function handleInput(e) {
     renderOriginalText();
     renderUserInput();
     updateWPM();
+    updateProgress();
 }
 
 // Skip blank lines automatically and auto-indent
@@ -856,11 +900,21 @@ function showCompletionMessage(finalWPM, accuracy) {
         elements.completionChapterTitle.textContent = '연습 모드';
     }
 
-    // Set stats
-    elements.completionTime.textContent = formatTime(state.elapsedTime);
-    elements.completionCps.textContent = `${cps}타/초`;
-    elements.completionCpm.textContent = cpm;
-    elements.completionAccuracy.textContent = `${accuracy}%`;
+    // Set stats with count-up animation
+    // Reset excellent class
+    elements.completionAccuracy.classList.remove('excellent');
+
+    // Animate time (0 to elapsed time)
+    animateCountUp(elements.completionTime, state.elapsedTime, 1000, '', true);
+
+    // Animate CPS
+    animateCountUp(elements.completionCps, parseFloat(cps), 1000, '타/초');
+
+    // Animate CPM
+    animateCountUp(elements.completionCpm, cpm, 1000, '');
+
+    // Animate accuracy
+    animateCountUp(elements.completionAccuracy, accuracy, 1000, '%');
 
     // Set learning content (keyConcepts and canDoWith)
     const learningCard = document.querySelector('.learning-card');
@@ -932,6 +986,44 @@ function getDefaultCanDoWith(chapterData) {
         "더 복잡한 기능을 구현할 준비가 되었습니다"
     ];
     return defaultCanDo;
+}
+
+// Animate number count-up
+function animateCountUp(element, targetValue, duration = 1000, suffix = '', isTime = false) {
+    const startTime = performance.now();
+    const startValue = 0;
+
+    function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        // Easing function (ease-out)
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+
+        const currentValue = startValue + (targetValue - startValue) * easedProgress;
+
+        if (isTime) {
+            // Format as time
+            const seconds = Math.round(currentValue);
+            element.textContent = formatTime(seconds);
+        } else if (suffix === '타/초') {
+            element.textContent = `${currentValue.toFixed(1)}${suffix}`;
+        } else if (suffix === '%') {
+            element.textContent = `${Math.round(currentValue)}${suffix}`;
+            // Add excellent class if accuracy >= 95%
+            if (targetValue >= 95) {
+                element.classList.add('excellent');
+            }
+        } else {
+            element.textContent = `${Math.round(currentValue)}${suffix}`;
+        }
+
+        if (progress < 1) {
+            requestAnimationFrame(update);
+        }
+    }
+
+    requestAnimationFrame(update);
 }
 
 // Render terminal output for completion screen

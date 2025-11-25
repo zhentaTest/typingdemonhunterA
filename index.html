@@ -88,6 +88,66 @@
         <textarea id="hidden-input" class="hidden-input" autofocus></textarea>
     </div>
 
+    <!-- Completion Screen (shown after typing complete) -->
+    <div id="completion-screen" class="completion-screen" style="display: none;">
+        <!-- Header -->
+        <div class="completion-header">
+            <h1>✅ 타이핑 완료!</h1>
+            <h2 id="completion-chapter-title">챕터 01: 변수와 기본 타입</h2>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="stats-card">
+            <h3>⏱️ 타이핑 통계</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="completion-time">01분 23초</div>
+                    <div class="stat-label">소요 시간</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="completion-cps">4.2타/초</div>
+                    <div class="stat-label">타이핑 속도 (<span id="completion-cpm">252</span> CPM)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="completion-accuracy">98.5%</div>
+                    <div class="stat-label">정확도</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Content Card -->
+        <div class="learning-card">
+            <h3>📚 이번 챕터에서 배운 내용</h3>
+            <div class="concepts-section">
+                <h4>✨ 핵심 개념</h4>
+                <ul id="completion-concepts"></ul>
+            </div>
+            <div class="cando-section">
+                <h4>🚀 이것으로 할 수 있는 것들</h4>
+                <ul id="completion-cando"></ul>
+            </div>
+        </div>
+
+        <!-- Code Card -->
+        <div class="code-card">
+            <h3>💻 타이핑한 코드</h3>
+            <pre id="completion-code"></pre>
+        </div>
+
+        <!-- Result Card -->
+        <div class="result-card">
+            <h3>▶️ 실행 결과</h3>
+            <div class="completion-terminal" id="completion-terminal"></div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="completion-buttons">
+            <button id="btn-retry" class="btn-retry">🔄 다시 연습</button>
+            <button id="btn-next" class="btn-next">➡️ 다음 챕터</button>
+            <button id="btn-home" class="btn-home">🏠 메인으로</button>
+        </div>
+    </div>
+
     <script src="data.js"></script>
     <script src="chapters.js"></script>
     <script src="app.js"></script>

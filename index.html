@@ -45,11 +45,20 @@
                 </button>
             </div>
 
-            <!-- 오른쪽: 타이머와 WPM -->
+            <!-- 오른쪽: 타이머와 WPM (그라데이션 테두리 박스) -->
             <div class="header-right">
                 <div class="timer-display">
-                    <span class="timer" id="timer">0초</span>
-                    <span class="timer-label">WPM: <span id="wpm">0</span></span>
+                    <div class="timer-display-inner">
+                        <div class="timer-item">
+                            <div class="timer-sublabel">TIME</div>
+                            <span class="timer" id="timer">0초</span>
+                        </div>
+                        <div class="timer-divider"></div>
+                        <div class="timer-item">
+                            <div class="timer-label">WPM</div>
+                            <span id="wpm">0</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -76,6 +85,18 @@
         <div class="text-container">
             <div class="section-label">입력 영역</div>
             <div id="user-input" class="text-display user-input"><span id="typed-text" class="typed-text"></span><span class="cursor" id="cursor"></span></div>
+
+            <!-- 진행률 표시 -->
+            <div class="progress-info">
+                <span class="progress-label">진행률</span>
+                <span class="progress-percentage low" id="progress-percentage">0%</span>
+                <span class="char-count"><span class="current" id="current-char">0</span> / <span id="total-char">0</span></span>
+            </div>
+
+            <!-- 진행률 바 -->
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" id="progress-bar" style="width: 0%"></div>
+            </div>
         </div>
 
         <!-- Expected Output Area (Education Mode Only) -->
@@ -92,7 +113,12 @@
     <div id="completion-screen" class="completion-screen" style="display: none;">
         <!-- Header -->
         <div class="completion-header">
-            <h1>✅ 타이핑 완료!</h1>
+            <div class="success-icon-wrapper">
+                <svg class="success-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h1>타이핑 완료!</h1>
             <h2 id="completion-chapter-title">챕터 01: 변수와 기본 타입</h2>
         </div>
 
@@ -101,15 +127,15 @@
             <h3>⏱️ 타이핑 통계</h3>
             <div class="stats-grid">
                 <div class="stat-item">
-                    <div class="stat-value" id="completion-time">01분 23초</div>
+                    <div class="stat-value" id="completion-time" data-target="0">00:00</div>
                     <div class="stat-label">소요 시간</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="completion-cps">4.2타/초</div>
-                    <div class="stat-label">타이핑 속도 (<span id="completion-cpm">252</span> CPM)</div>
+                    <div class="stat-value" id="completion-cps" data-target="0">0.0타/초</div>
+                    <div class="stat-label">타이핑 속도 (<span id="completion-cpm">0</span> CPM)</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="completion-accuracy">98.5%</div>
+                    <div class="stat-value" id="completion-accuracy" data-target="0">0%</div>
                     <div class="stat-label">정확도</div>
                 </div>
             </div>
